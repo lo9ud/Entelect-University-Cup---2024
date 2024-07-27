@@ -41,11 +41,14 @@ public class Path {
         if (Math.abs(start_i - end_i) != 2) {
             throw new IllegalArgumentException("Start and end nodes are not adjacent.");
         }
-        if (this.path.get(start_i + 1) != corners[1] 
-        || this.path.get(end_i - 1) != corners[1]
-        || this.path.get(start_i + 1) != corners[0]
-        || this.path.get(end_i - 1) != corners[0]) {
-            throw new IllegalArgumentException("Corner nodes not in correct positions.");
+        if (this.path.indexOf(corners[0]) != -1 && this.path.indexOf(corners[1]) != -1) {
+            throw new IllegalArgumentException("Corners already in path.");
+        } else if (this.path.indexOf(corners[0]) != -1) {
+            this.path.set(this.path.indexOf(corners[0]), corners[1]);
+        } else if (this.path.indexOf(corners[1]) != -1) {
+            this.path.set(this.path.indexOf(corners[1]), corners[0]);
+        } else {
+            throw new IllegalArgumentException("Corners not in path.");
         }
     }
 }
