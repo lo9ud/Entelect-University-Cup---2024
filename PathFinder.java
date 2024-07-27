@@ -1,5 +1,5 @@
 public abstract class PathFinder {
-    public abstract Path findPath();
+    public abstract Path findPath(World world);
 
     static final int[] BIOME_VALUE_PER_DAY = {
         1,
