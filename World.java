@@ -12,14 +12,17 @@ public class World {
     public static void main(String[] args) {
         System.out.println("Starting world instantiation...");
         try {
-            World world = World.fromConfig(new File("1.txt"));
+            World world = World.fromConfig(new File("test_world.txt"));
             System.out.println("World instantiated.");
+            System.out.println("World radius: " + world.getRadius());
+            System.out.println("World nodes: " + world.getNodes().size());
             Display display = new Display();
             display.display(world);
         } catch (FileNotFoundException e) {
             System.out.println("File not found.");
         }
     }
+
     static class Node {
         public int x;
         public int y;
@@ -37,6 +40,9 @@ public class World {
 
     private int radius;
     private ArrayList<Node> nodes;
+
+    public Node northPole;
+    public Node southPole;
 
     private World(ArrayList<Node> nodes, int r) {
         this.radius = r;
@@ -58,6 +64,8 @@ public class World {
     public static World fromString(BufferedReader in) {
         Stream <String> lines = in.lines();
         ArrayList<Node> nodes = new ArrayList<>();
+        Node north = null;
+        Node south = null;
 
         for (String line : lines.collect(Collectors.toList())) {
             String[] parts = line.substring(1, line.length() - 1).split(Pattern.quote(";"));
@@ -68,12 +76,30 @@ public class World {
             if (parts.length > 1) {
                 biome = Integer.parseInt(parts[1]);
                 multiplier = Float.parseFloat(parts[2]);
+                nodes.add(new Node(coords[0], coords[1], biome, multiplier ));
             } else {
                 biome = 0;
                 multiplier = 0;
+                if (coords[1] > 0) {
+                    north = new Node(coords[0], coords[1], biome, multiplier);
+                } else {
+                    south = new Node(coords[0], coords[1], biome, multiplier);
+                }
             }
-            nodes.add(new Node(coords[0], coords[1], biome, multiplier ));
         }
-        return new World(nodes, nodes.get(0).y*2 + 1);
+        World w = new World(nodes, nodes.get(0).y-1);
+        w.northPole = north;
+        w.southPole = south;
+        return w;
+
+    }
+
+    public Node getNode(int x, int y) {
+        for (Node node : this.nodes) {
+            if (node.x == x && node.y == y) {
+                return node;
+            }
+        }
+        return null;
     }
 }

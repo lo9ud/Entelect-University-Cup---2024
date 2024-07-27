@@ -17,6 +17,14 @@ public abstract class PathFinder {
         return node.multiplier * PathFinder.BIOME_VALUE_PER_DAY[node.biome] * days;
     }
 
+    public static void scorePath(Path path) {
+        float score = 0;
+        for (World.Node node : path.getPath()) {
+            score += PathFinder.nodeScore(node, path.getPath().indexOf(node));
+        }
+        System.out.println("Path score: " + score);
+    }
+
     public static void displayPath(Path path) {
         for (World.Node node : path.getPath()) {
             System.out.println("Node: " + node.x + ", " + node.y);

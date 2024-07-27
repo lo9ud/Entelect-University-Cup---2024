@@ -1,9 +1,17 @@
-import java.util.ArrayList;;
+import java.util.ArrayList;
+import java.util.stream.Collectors;;
 
 public class Path {
     private ArrayList<World.Node> path;
-    public Path () {
+
+    public Path() {
         this.path = new ArrayList<>();
+    }
+
+    public String formatPath() {
+        return "["
+                + this.path.stream().map((node) -> "(" + node.x + "," + node.y + ")").collect(Collectors.joining(","))
+                + "]";
     }
 
     public void addNode(World.Node node) {

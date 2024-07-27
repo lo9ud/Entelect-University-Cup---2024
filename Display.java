@@ -19,15 +19,14 @@ public class Display {
         StdDraw.show(0);
 
         for (World.Node node : world.getNodes()) {
-            float half_r = (float) (world.getRadius()) / 2;
+            float half_r = (float) (world.getRadius()) / 2 + 2;
             float draw_x = this.map(node.x, -half_r, half_r, 20, width -20);
             float draw_y = this.map(node.y, -half_r - 1, half_r + 1, 20, height-20);
             StdDraw.setPenColor(StdDraw.WHITE);
             StdDraw.filledCircle(draw_x, draw_y, 25);
 
             StdDraw.setPenColor(StdDraw.BLACK);
-            StdDraw.text(draw_x, draw_y+9, "B: "+ node.biome);
-            StdDraw.text(draw_x, draw_y-9, "M: " + node.multiplier);
+            StdDraw.text(draw_x, draw_y, "(" + node.x + ", " + node.y + ")");
         }
         StdDraw.show();
     }
