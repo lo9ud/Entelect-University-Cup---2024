@@ -4,8 +4,8 @@ import java.util.stream.Collectors;;
 public class Path {
     private ArrayList<World.Node> path;
 
-    public Path() {
-        this.path = new ArrayList<>();
+    public Path(ArrayList<World.Node> path) {
+        this.path = path;
     }
 
     public String formatPath() {

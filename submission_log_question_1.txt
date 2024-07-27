@@ -1,0 +1,1 @@
+The node: (-8, -6) is visited more than once.

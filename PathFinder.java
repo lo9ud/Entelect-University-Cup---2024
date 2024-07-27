@@ -1,5 +1,5 @@
 public abstract class PathFinder {
-    public abstract Path findPath(World world);
+    public abstract Path findPath(World world, int limit);
 
     static final int[] BIOME_VALUE_PER_DAY = {
         1,
@@ -15,6 +15,14 @@ public abstract class PathFinder {
     public static float nodeScore(World.Node node, int index) {
         int days = index / 3 + 1;
         return node.multiplier * PathFinder.BIOME_VALUE_PER_DAY[node.biome] * days;
+    }
+
+    public static float pathScore(Path path) {
+        float score = 0;
+        for (World.Node node : path.getPath()) {
+            score += PathFinder.nodeScore(node, path.getPath().indexOf(node));
+        }
+        return score;
     }
 
     public static void scorePath(Path path) {

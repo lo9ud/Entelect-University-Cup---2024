@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 public class BackPropogationPathFinder extends PathFinder {
 
     @Override
-    public Path findPath(World world) {
+    public Path findPath(World world, int limit) {
         int radius = world.getRadius();
 
         // Find best straight-line path
@@ -39,24 +39,81 @@ public class BackPropogationPathFinder extends PathFinder {
                 }).collect(Collectors.toList()));
         path_nodes.add(world.southPole);
 
-        Path path = new Path();
-        for (World.Node node : path_nodes) {
-            path.addNode(node);
-        }
+        Path best_path = null;
+        float best_score = 0;
+
+        int remaining_cache = 0;
+        int remaining_retries = 0;
+        int remaining = limit - path_nodes.size() + 1;
         // Look for best transform for path
+        while (remaining > 0) {
+            if (remaining == remaining_cache) {
+                remaining_retries++;
+            } else {
+                remaining_cache = remaining;
+                remaining_retries = 0;
+            }
+            if (remaining_retries > 3) {
+                break;
+            }
+            System.out.println("Remaining: " + remaining);
+            // locate optimal cut position y value
+            for (int y_comp = world.getRadius(); y_comp > -world.getRadius(); y_comp--) {
+                // System.out.println("Cutting at y_comp: " + y_comp);
+                int x_limit = Math.min(remaining, world.getRadius());
+                // Find best path:
+                // - Cut path at y_comp
+                // - Extend path to x_comp
+                // - extend path to south pole
+
+                // check all possible x values around the world within limit
+                for (int x_comp = -x_limit; x_comp < x_limit; x_comp++) {
+                    // System.out.println("Extending to x_comp: " + x_comp);
+                    // Cut path at y_comp (take nodes until we hit the y_comp level)
+                    final int final_y_comp = y_comp;
+                    ArrayList<World.Node> new_path = path_nodes.stream().takeWhile((node) -> node.y != final_y_comp)
+                            .collect(Collectors.toCollection(ArrayList::new));
+
+                    World.Node tip = new_path.get(new_path.size() - 1);
+
+                    // Extend path from tip to x_comp
+                    // System.out.println("Extending to x_comp: " + x_comp);
+                    while (tip.x != x_comp) {
+                        // System.out.println("Tip: " + tip.x + ", " + tip.y + " extending to x_comp: " + x_comp
+                        //         + " world radius: " + world.getRadius());
+                        World.Node new_node = world
+                                .getNode((tip.x - (int) Math.signum(tip.x - x_comp)) % (world.getRadius() + 1), tip.y);
+                        new_path.add(new_node);
+                        tip = new_node;
+                    }
+
+                    // Extend path to south pole
+                    // System.out.println("Extending to south pole");
+                    while (tip.y > -world.getRadius()) {
+                        World.Node new_node = world.getNode(tip.x, tip.y - 1);
+                        System.out.println("adding node: " + new_node.x + ", " + new_node.y);
+                        new_path.add(new_node);
+                        tip = new_node;
+                    }
+                    Path tmp_path = new Path(new_path);
+                    float score = PathFinder.pathScore(tmp_path);
+                    // System.out.println("Score: " + score);
+
+                    if (score > best_score) {
+                        System.out.println("Updating best path - score: " + score);
+                        best_score = score;
+                        best_path = tmp_path;
+                    }
+                }
+
+            }
+
+            remaining = remaining - Math.abs(path_nodes.size() - best_path.getPath().size());
+            path_nodes = best_path.getPath();
+        }
 
         // Repeat ad infinitum until path length exceeds limit
-
-        return path;
-    }
-
-    public static void main(String[] args) {
-        try {
-            World world = World.fromConfig(new File("1.txt"));
-            PathFinder pathFinder = new BackPropogationPathFinder();
-            Path path = pathFinder.findPath(world);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        path_nodes.add(world.southPole);
+        return new Path(path_nodes);
     }
 }
