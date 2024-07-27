@@ -17,7 +17,7 @@ public abstract class PathFinder {
         return node.multiplier * PathFinder.BIOME_VALUE_PER_DAY[node.biome] * days;
     }
 
-    public void displayPath(Path path) {
+    public static void displayPath(Path path) {
         for (World.Node node : path.getPath()) {
             System.out.println("Node: " + node.x + ", " + node.y);
         }
